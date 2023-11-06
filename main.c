@@ -28,6 +28,8 @@ typedef struct LinkListNode{
     struct LinkListNode* next;
 }LinkListNode;
 
+Song* newsong(char* genre, char*artist, char* title, char* album, char* trackid, short popularity, bool shown);
+
 bool readInSongs(SongArrayList *songList);
 void printSongList(SongArrayList * songList, int starting_index);
 void generateUniqueGenres(LinkListNode ** ptrUniqueGenresLL, SongArrayList songList);
@@ -36,9 +38,6 @@ void generateUniqueGenres(LinkListNode ** ptrUniqueGenresLL, SongArrayList songL
 // CODE: Copy in functions from prior assignments for Array Lists and Link Lists.  //       Modify those functions to handle the structures used in this assignment
 // *************************************************************************************
 
-#include <stdio.h>
-#include <stdlib.h>
-#include<string.h>
 typedef struct LinkedList
 {
    int data;
@@ -162,62 +161,44 @@ int searchElementByValue(int value){
 
 //
 
-#include <stdio.h>
-#include <stdlib.h>
 
-typedef struct  ArrayList
+/*typedef struct  ArrayList
 {
     int size;
     int capacity;
     int* data;
-    /* data */
-} ArrayList;
-void addElement(ArrayList* list, int data);
-struct ArrayList* createArrayList(int initialcapacity);
-void resizeList(ArrayList* list, int sizetoadd);
-void removeLastElement(ArrayList* list);
-void shrinkList(ArrayList* list);
-int getElement(ArrayList* list, int i);
-void freeArrayList(ArrayList* list);
+    /* data 
+} ArrayList;*/
+void addElement(SongArrayList* list, Song data);
+SongArrayList* createArrayList(size_t initialcapacity);
+void resizeList(SongArrayList* list, size_t sizetoadd);
+void removeLastElement(SongArrayList* list);
+void shrinkList(SongArrayList* list);
+Song getElement(SongArrayList* list, int i);
+void freeArrayList(SongArrayList* list);
 
-/*int main()
-{
-    ArrayList* list = createArrayList(10);
-    printf("%d \n", list->capacity);
-    for (int i = 0; i < 31; i++)
-    {
-        addElement(list, i);
-    }
-    printf("%d \n", list->capacity);
-    for (int i = 0; i < 30; i++) {
-        removeLastElement(list);
-    }
-    printf("%d \n", list->capacity);
-    freeArrayList(list);
-    return 0;
-}*/
 
-ArrayList* createArrayList(int initialcapacity) {
-    ArrayList* result = malloc(sizeof(ArrayList));
+SongArrayList* createArrayList(size_t initialcapacity) {
+    SongArrayList* result = malloc(sizeof(SongArrayList));
     result->capacity = initialcapacity;
     result->size = 0;
-    result->data = malloc(initialcapacity * sizeof(int));
+    result->songs = malloc(initialcapacity * sizeof(Song));
     return result;
 }
-void resizeList(ArrayList* list, int sizetoadd) {
+void resizeList(SongArrayList* list, size_t sizetoadd) {
     list->capacity += sizetoadd;
-    list->data = realloc((list->data), list->capacity * sizeof(int));
+    list->songs = realloc((list->songs), list->capacity * sizeof(int));
 }
 
-void addElement(ArrayList* list, int data) {
+void addElement(SongArrayList* list, Song data) {
     if (list->size == list->capacity) {
         resizeList(list, 10);
     }
-    *(list->data + list->size) = data;
+    *(list->songs + list->size) = data;
     list->size++;
 
 }
-void removeLastElement(ArrayList* list)
+void removeLastElement(SongArrayList* list)
 {
     if (list->size == 0)
         return;
@@ -227,7 +208,7 @@ void removeLastElement(ArrayList* list)
     }
 
 }
-void shrinkList(ArrayList* list) {
+void shrinkList(SongArrayList* list) {
     int shrinksize;
     if (list->capacity / 2 < 2) {
         shrinksize = 2;
@@ -235,26 +216,25 @@ void shrinkList(ArrayList* list) {
     else {
         shrinksize = list->capacity / 2;
     }
-    int* p = NULL;
-    p = realloc(list->data, shrinksize * sizeof(int));
+    Song* p = NULL;
+    p = realloc(list->songs, shrinksize * sizeof(Song));
     if (p != NULL) {
-        list->data = p;
+        list->songs= p;
     }
     else
         printf("Error");
     list->capacity = shrinksize;
 }
 
-int getElement(ArrayList* list, int i) {
+Song getElement(SongArrayList* list, int i) {
     if (i > list->size) {
-        return -1;
     }
     else
-        return *(list->data + i);
+        return *(list->songs + i);
 }
 
-void freeArrayList(ArrayList* list) {
-    free(list->data);
+void freeArrayList(SongArrayList* list) {
+    free(list->songs);
     free(list);
 }
 
@@ -270,4 +250,94 @@ int main(){
     // CODE: Need browsing and navigation loop
     
     return 0;
+}
+/*typedef struct {
+    char *genre;
+    char *artist;
+    char *title;
+    char *album;
+    char *trackid;
+    short popularity;
+    bool shown;
+} Song;*/
+bool readInSongs(SongArrayList *songList){
+    FILE *file = fopen("songs.txt","r");
+    int ch;
+    char* pointer=NULL;
+    size_t size=0;
+    int number;
+    char* word;
+    char *genre;
+    char *artist;
+    char *title;
+    char *album;
+    char *trackid;
+    short popularity;
+    bool shown = false;
+
+    printf("Test");
+    
+    while(-1!=getline(&pointer,&size,file)){
+        word = strtok(pointer, "    ");
+        number = 0;
+        printf("test1\n");
+        while(number<7){
+            printf("Test2\n");
+            word = strtok(NULL," ");
+        switch(number){
+            case 0:// genre
+            printf("Test0\n");
+            genre = word;
+            number ++;
+            break;
+            case 1://artist
+            printf("Test1\n");
+            artist=word;
+            number ++;
+            break;
+            case 2://title/
+            printf("Test2\n");
+            title =word;
+            number ++;
+            break;
+            case 3://album
+            number ++;
+            printf("Test3\n");
+            album = word;
+            break;
+            case 4://trackid
+            number ++;
+            printf("Test4\n");
+            trackid = word;
+            break;
+            case 5://popularity
+            printf("Test5\n");
+            popularity = 2;//(short)atoi(word);
+            printf("Test5\n");
+            number ++;
+            break;
+            case 6: // shown
+            printf("Test6\n");
+            number++;
+            break;
+        }
+        }
+            printf("test3\n");
+        addElement(songList,*newsong(genre,artist,title,album,trackid,popularity,shown));
+        printf("after\n");
+    }
+
+    return true;
+}
+Song* newsong(char* genre, char*artist, char* title, char* album, char* trackid, short popularity, bool shown){
+    Song* pointer; 
+    pointer = malloc(sizeof(Song));
+    pointer->genre=genre;
+    pointer->artist=artist;
+    pointer->title =title;
+    pointer->album=album;
+    pointer->trackid=trackid;
+    pointer->popularity=popularity;
+    pointer->shown=shown;
+    return pointer;
 }
